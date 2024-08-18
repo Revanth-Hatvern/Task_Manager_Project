@@ -8,7 +8,7 @@
 
         public string? TaskDescription { get; set; }
 
-        public int TargetTime {  get; set; }
+        public double TargetTimeinHours {  get; set; }
 
     }
 }
