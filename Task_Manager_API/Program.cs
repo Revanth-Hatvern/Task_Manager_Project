@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Task_Manager_API.Data;
+using Task_Manager_API.Mappings;
 using Task_Manager_API.Repository;
 
 
@@ -12,6 +13,8 @@ builder.Services.AddDbContext<TaskManagerDBContext>(options =>
 options.UseSqlServer(builder.Configuration.GetConnectionString("DBConnectionString")));
 
 builder.Services.AddScoped<ITaskManagerRepository,SQLTaskManagerRepository>();
+
+builder.Services.AddAutoMapper(typeof(AutoMappingProfile));
 
 
 builder.Services.AddControllers();

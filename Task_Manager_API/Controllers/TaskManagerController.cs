@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Mvc;
 using Task_Manager_API.Data;
 using Task_Manager_API.Models.Domain;
 using Task_Manager_API.Models.DTO;
@@ -13,10 +14,12 @@ namespace Task_Manager_API.Controllers
     {
 
         private readonly ITaskManagerRepository _taskManagerRepository;
+        private readonly IMapper _mapper;
 
-        public TaskManagerController(ITaskManagerRepository taskManagerRepository)
+        public TaskManagerController(ITaskManagerRepository taskManagerRepository,IMapper mapper)
         {
             _taskManagerRepository = taskManagerRepository;
+            _mapper = mapper;
         }
 
 
@@ -24,18 +27,11 @@ namespace Task_Manager_API.Controllers
         public async Task<IActionResult> GetAllLists()
         {
             var taskManagerdomain = await _taskManagerRepository.GetAllAsync();
-            var taskManagerDto = new List<TaskManagerDto>();
+         //   var taskManagerDto = new List<TaskManagerDto>();
 
-            foreach(var taskManager in taskManagerdomain)
-            {
-                taskManagerDto.Add(new TaskManagerDto()
-                {
-                    Id= taskManager.Id,
-                    TaskName=taskManager.TaskName,
-                    TaskDescription=taskManager.TaskDescription,
-                    TargetTimeinHours=taskManager.TargetTimeinHours
-                });
-            }
+            //Map Domain to Dto
+
+          var taskManagerDto=_mapper.Map<List<TaskManagerDto>>(taskManagerdomain);      
 
             return Ok(taskManagerDto);
         }
@@ -51,16 +47,11 @@ namespace Task_Manager_API.Controllers
                 return NotFound("No Task Found");
             }
 
-            var taskManagerDto = new TaskManagerDto()
-            { 
-                Id = taskManager.Id,
-                TaskName=taskManager.TaskName,
-                TaskDescription=taskManager.TaskDescription,
-                TargetTimeinHours = taskManager.TargetTimeinHours
-                 
-            };
+            //Convert Domain Model to Dto
+            //Mapping Domain to Dto
 
-            
+            var taskManagerDto = _mapper.Map<TaskManagerDto>(taskManager);
+                     
             return Ok(taskManagerDto);
         }
 
@@ -68,15 +59,9 @@ namespace Task_Manager_API.Controllers
         public async Task<IActionResult> CreateTask([FromBody]TaskManagerRequestDto taskManagerRequestDto)
         {
 
-            
-
-            var taskManager = new TaskManager()
-            {     
-                TaskName= taskManagerRequestDto.TaskName,
-                TaskDescription= taskManagerRequestDto.TaskDescription,
-                TargetTimeinHours= taskManagerRequestDto.TargetTimeinHours
-            };
-
+            //Map Dto to Domain
+            var taskManager = _mapper.Map<TaskManager>(taskManagerRequestDto);
+           
              await _taskManagerRepository.CreateAsync(taskManager);
 
             return Ok("Task Created Sucessfully");
@@ -88,15 +73,12 @@ namespace Task_Manager_API.Controllers
 
         public async Task<IActionResult> EditTask([FromRoute]int id,[FromBody] TaskManagerRequestDto taskManagerRequestDto) 
         {
-            var taskmanager = new TaskManager();
-        
-            taskmanager.TaskName = taskManagerRequestDto.TaskName;
-            taskmanager.TaskDescription= taskManagerRequestDto.TaskDescription;
-            taskmanager.TargetTimeinHours = taskManagerRequestDto.TargetTimeinHours;
+            //Map Dto to Domain
+            var taskManager = _mapper.Map<TaskManager>(taskManagerRequestDto);
+           
+            taskManager = await _taskManagerRepository.UpdateAsync(id, taskManager);
 
-             taskmanager = await _taskManagerRepository.UpdateAsync(id, taskmanager);
-
-            if(taskmanager==null)
+            if(taskManager == null)
              return NotFound();
 
             return Ok("Task Edited Sucessfully");

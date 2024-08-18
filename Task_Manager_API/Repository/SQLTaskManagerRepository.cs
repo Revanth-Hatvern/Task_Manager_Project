@@ -50,7 +50,7 @@ namespace Task_Manager_API.Repository
 
         public async Task<TaskManager>? UpdateAsync(int id, TaskManager taskManager)
         {
-            var existingTask=await _dbContext.Tasks.FirstOrDefaultAsync( x=>x.Id == id);
+            var existingTask=await _dbContext.Tasks.FirstOrDefaultAsync(x=>x.Id == id);
             if (existingTask==null)
             {
                 return null;                  // throw new Exception($"Task with ID {id} not found."); //exception
