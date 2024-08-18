@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Task_Manager_API.Data;
 using Task_Manager_API.Models.Domain;
+using Task_Manager_API.Models.DTO;
 
 namespace Task_Manager_API.Controllers
 {
@@ -19,8 +20,23 @@ namespace Task_Manager_API.Controllers
         [HttpGet]
         public IActionResult GetAllLists()
         {
-            var taskManager = _dbContext.Tasks.ToList();
-            return Ok(taskManager);
+            var taskManagerdomain = _dbContext.Tasks.ToList();
+
+            var taskManagerDto = new List<TaskManagerDto>();
+
+            foreach(var taskManager in taskManagerdomain)
+            {
+                taskManagerDto.Add(new TaskManagerDto()
+                {
+                    Id= taskManager.Id,
+                    TaskName=taskManager.TaskName,
+                    TaskDescription=taskManager.TaskDescription,
+                    TargetTimeinHours=taskManager.TargetTimeinHours
+                });
+            }
+
+
+            return Ok(taskManagerDto);
         }
 
         [HttpGet]
@@ -32,19 +48,32 @@ namespace Task_Manager_API.Controllers
             {
                 return NotFound();
             }
-            return Ok(taskManager);
+
+            var taskManagerDto = new TaskManagerDto()
+            { 
+                Id = taskManager.Id,
+                TaskName=taskManager.TaskName,
+                TaskDescription=taskManager.TaskDescription,
+                TargetTimeinHours = taskManager.TargetTimeinHours
+                 
+            };
+
+            
+            return Ok(taskManagerDto);
         }
 
         [HttpPost]
-        public IActionResult CreateTask([FromBody]TaskManager task)
+        public IActionResult CreateTask([FromBody]TaskManagerRequestDto taskManagerRequestDto)
         {
-            var taskmanager = new TaskManager();
+            var taskManager = new TaskManager()
+            {     
+                TaskName= taskManagerRequestDto.TaskName,
+                TaskDescription= taskManagerRequestDto.TaskDescription,
+                TargetTimeinHours= taskManagerRequestDto.TargetTimeinHours
+            };
 
-            taskmanager.TaskName=task.TaskName;
-            taskmanager.TaskDescription=task.TaskDescription;
-            taskmanager.TargetTimeinHours=task.TargetTimeinHours;
-
-           _dbContext.Tasks.Add(taskmanager);
+     
+           _dbContext.Tasks.Add(taskManager);
 
             _dbContext.SaveChanges();
 
@@ -55,7 +84,7 @@ namespace Task_Manager_API.Controllers
         [HttpPut]
         [Route("{id}")]
 
-        public IActionResult EditTask([FromRoute]int id,[FromBody]TaskManager task) 
+        public IActionResult EditTask([FromRoute]int id,[FromBody] TaskManagerRequestDto taskManagerRequestDto) 
         {
             var taskmanager=_dbContext.Tasks.FirstOrDefault(x=>x.Id==id);
 
@@ -63,10 +92,10 @@ namespace Task_Manager_API.Controllers
             {
                 return NotFound();
             }
-            
-            taskmanager.TaskName = task.TaskName;
-            taskmanager.TaskDescription = task.TaskDescription;
-            taskmanager.TargetTimeinHours = task.TargetTimeinHours;
+
+            taskmanager.TaskName = taskManagerRequestDto.TaskName;
+            taskmanager.TaskDescription= taskManagerRequestDto.TaskDescription;
+            taskmanager.TargetTimeinHours = taskManagerRequestDto.TargetTimeinHours;
 
             _dbContext.SaveChanges();
 
