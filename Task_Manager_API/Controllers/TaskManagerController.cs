@@ -2,6 +2,7 @@
 using Task_Manager_API.Data;
 using Task_Manager_API.Models.Domain;
 using Task_Manager_API.Models.DTO;
+using Task_Manager_API.Repository;
 
 namespace Task_Manager_API.Controllers
 {
@@ -10,18 +11,19 @@ namespace Task_Manager_API.Controllers
     [ApiController]
     public class TaskManagerController : Controller
     {
-        private readonly TaskManagerDBContext _dbContext;
 
-        public TaskManagerController(TaskManagerDBContext dBContext)
+        private readonly ITaskManagerRepository _taskManagerRepository;
+
+        public TaskManagerController(ITaskManagerRepository taskManagerRepository)
         {
-            _dbContext = dBContext;
+            _taskManagerRepository = taskManagerRepository;
         }
 
-        [HttpGet]
-        public IActionResult GetAllLists()
-        {
-            var taskManagerdomain = _dbContext.Tasks.ToList();
 
+        [HttpGet]
+        public async Task<IActionResult> GetAllLists()
+        {
+            var taskManagerdomain = await _taskManagerRepository.GetAllAsync();
             var taskManagerDto = new List<TaskManagerDto>();
 
             foreach(var taskManager in taskManagerdomain)
@@ -35,18 +37,18 @@ namespace Task_Manager_API.Controllers
                 });
             }
 
-
             return Ok(taskManagerDto);
         }
 
         [HttpGet]
         [Route("{id}")]
-        public IActionResult GetList([FromRoute] int id) 
+        public async Task<IActionResult> GetList([FromRoute] int id) 
         {
-            var taskManager=_dbContext.Tasks.FirstOrDefault(x => x.Id == id);
-            if(taskManager == null)
+            var taskManager=await _taskManagerRepository.GetAsyncById(id);
+           
+            if(taskManager==null)
             {
-                return NotFound();
+                return NotFound("No Task Found");
             }
 
             var taskManagerDto = new TaskManagerDto()
@@ -63,8 +65,11 @@ namespace Task_Manager_API.Controllers
         }
 
         [HttpPost]
-        public IActionResult CreateTask([FromBody]TaskManagerRequestDto taskManagerRequestDto)
+        public async Task<IActionResult> CreateTask([FromBody]TaskManagerRequestDto taskManagerRequestDto)
         {
+
+            
+
             var taskManager = new TaskManager()
             {     
                 TaskName= taskManagerRequestDto.TaskName,
@@ -72,10 +77,7 @@ namespace Task_Manager_API.Controllers
                 TargetTimeinHours= taskManagerRequestDto.TargetTimeinHours
             };
 
-     
-           _dbContext.Tasks.Add(taskManager);
-
-            _dbContext.SaveChanges();
+             await _taskManagerRepository.CreateAsync(taskManager);
 
             return Ok("Task Created Sucessfully");
 
@@ -84,20 +86,18 @@ namespace Task_Manager_API.Controllers
         [HttpPut]
         [Route("{id}")]
 
-        public IActionResult EditTask([FromRoute]int id,[FromBody] TaskManagerRequestDto taskManagerRequestDto) 
+        public async Task<IActionResult> EditTask([FromRoute]int id,[FromBody] TaskManagerRequestDto taskManagerRequestDto) 
         {
-            var taskmanager=_dbContext.Tasks.FirstOrDefault(x=>x.Id==id);
-
-            if( taskmanager == null)
-            {
-                return NotFound();
-            }
-
+            var taskmanager = new TaskManager();
+        
             taskmanager.TaskName = taskManagerRequestDto.TaskName;
             taskmanager.TaskDescription= taskManagerRequestDto.TaskDescription;
             taskmanager.TargetTimeinHours = taskManagerRequestDto.TargetTimeinHours;
 
-            _dbContext.SaveChanges();
+             taskmanager = await _taskManagerRepository.UpdateAsync(id, taskmanager);
+
+            if(taskmanager==null)
+             return NotFound();
 
             return Ok("Task Edited Sucessfully");
 
@@ -105,15 +105,13 @@ namespace Task_Manager_API.Controllers
 
         [HttpDelete]
         [Route("{id}")]
-        public IActionResult DeleteTask([FromRoute]int id)
+        public async Task<IActionResult> DeleteTask([FromRoute]int id)
         {
-            var taskManager= _dbContext.Tasks.FirstOrDefault( x=>x.Id==id);
-            if (taskManager == null)
+            var deleleTask=await _taskManagerRepository.DeleteAsync(id);
+
+            if(deleleTask==null)
                 return NotFound();
-
-            _dbContext.Remove(taskManager);
-            _dbContext.SaveChanges();
-
+            
             return Ok("Task Deleted Sucessfully");
 
         }

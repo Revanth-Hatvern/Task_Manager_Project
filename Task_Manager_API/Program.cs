@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Task_Manager_API.Data;
+using Task_Manager_API.Repository;
 
 
 
@@ -9,6 +10,8 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddDbContext<TaskManagerDBContext>(options =>
 options.UseSqlServer(builder.Configuration.GetConnectionString("DBConnectionString")));
+
+builder.Services.AddScoped<ITaskManagerRepository,SQLTaskManagerRepository>();
 
 
 builder.Services.AddControllers();
