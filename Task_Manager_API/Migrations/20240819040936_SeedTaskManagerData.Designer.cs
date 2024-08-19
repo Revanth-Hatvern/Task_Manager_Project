@@ -11,8 +11,8 @@ using Task_Manager_API.Data;
 namespace Task_Manager_API.Migrations
 {
     [DbContext(typeof(TaskManagerDBContext))]
-    [Migration("20240818121053_SeedTaskData")]
-    partial class SeedTaskData
+    [Migration("20240819040936_SeedTaskManagerData")]
+    partial class SeedTaskManagerData
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

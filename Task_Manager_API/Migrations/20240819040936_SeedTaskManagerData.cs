@@ -7,7 +7,7 @@
 namespace Task_Manager_API.Migrations
 {
     /// <inheritdoc />
-    public partial class SeedTaskData : Migration
+    public partial class SeedTaskManagerData : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
