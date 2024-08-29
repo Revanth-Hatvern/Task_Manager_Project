@@ -23,11 +23,15 @@
         @foreach (var task in Model)
         {
             <tr>
+                <td>@task.Id</td>
                 <td>@task.TaskName</td>
                 <td>@task.TaskDescription</td>
                 <td>@task.TargetTimeinHours</td>
                 <td>
-                    <a asp-controller="Regions" asp-action="Edit" asp-route-id="@task.Id" class="btn btn-secondary"> Edit</a>
+                    <a asp-controller="TaskManager" asp-action="Edit" asp-route-id="@task.Id" class="btn btn-secondary"> Edit</a>
+                </td>
+                <td>
+                    <a asp-controller="TaskManager" asp-action="Delete" asp-route-id="@task.Id" class="btn btn-secondary">Delete</a>
                 </td>
             </tr>
         }

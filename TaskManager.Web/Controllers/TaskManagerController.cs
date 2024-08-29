@@ -3,6 +3,7 @@ using System.Text.Json;
 using System.Text;
 using TaskManager.Web.Models.Dto;
 using TaskManager.Web.Models;
+using System.Net;
 
 namespace TaskManager.Web.Controllers
 {
@@ -69,6 +70,54 @@ namespace TaskManager.Web.Controllers
 
             httpResponseMessage.EnsureSuccessStatusCode();
 
+            if(httpResponseMessage.StatusCode==HttpStatusCode.OK)
+            {
+                return RedirectToAction("Index", "TaskManager");
+            }
+
+            //   var response = await httpResponseMessage.Content.ReadFromJsonAsync<TaskManagerDto>();
+            //if (response != null)
+            //{
+            //    return RedirectToAction("Index", "TaskManager");
+            //}
+
+            return View();
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Edit(int id)
+        {
+
+            //ViewBag.Id = id;   // View the Id in View
+
+            var client = httpClientFactory.CreateClient();
+
+            var response = await client.GetFromJsonAsync<TaskManagerDto>($"https://localhost:7036/api/TaskManager/{id}");
+
+            if (response != null)
+            {
+                return View(response);
+            }
+
+            return View(null);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Edit(TaskManagerDto request)
+        {
+            var client = httpClientFactory.CreateClient();
+
+            var httpRequestMessage = new HttpRequestMessage()
+            {
+                Method = HttpMethod.Put,
+                RequestUri = new Uri($"https://localhost:7036/api/TaskManager/{request.Id}"),
+                Content = new StringContent(JsonSerializer.Serialize(request), Encoding.UTF8, "application/json")     //Convert to JSON Content
+            };
+
+            var httpResponseMessage = await client.SendAsync(httpRequestMessage);
+
+            httpResponseMessage.EnsureSuccessStatusCode();
+
             var response = await httpResponseMessage.Content.ReadFromJsonAsync<TaskManagerDto>();
 
             if (response != null)
@@ -77,6 +126,23 @@ namespace TaskManager.Web.Controllers
             }
 
             return View();
+
         }
+
+        [HttpGet]
+        public async Task<IActionResult> Delete(int Id)
+        {
+            var client = httpClientFactory.CreateClient();
+
+            var httpRequestMessage = await client.DeleteAsync($"https://localhost:7036/api/TaskManager/{Id}");
+
+            httpRequestMessage.EnsureSuccessStatusCode();
+
+            return RedirectToAction("Index", "TaskManager");
+        }
+
+    
+
+       
     }
 }

@@ -81,7 +81,9 @@ namespace Task_Manager_API.Controllers
             if(taskManager == null)
              return NotFound();
 
-            return Ok("Task Edited Sucessfully");
+            //   return Ok("Task Edited Sucessfully");
+
+            return Ok(new { Message = "Task Edited Successfully", TaskManager = taskManager });
 
         }
 

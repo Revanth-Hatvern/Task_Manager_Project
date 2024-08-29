@@ -1,0 +1,43 @@
+﻿@model TaskManager.Web.Models.Dto.TaskManagerDto
+
+@{
+}
+
+<h1 class="mt-3">Edit Task</h1>
+
+@if(Model is not null)
+{
+    <form method="post" class="mt-3">
+
+        <div class="mt-3">
+            <label class="form-label">Task Id</label>
+            <input type="text" class="form-control" asp-for="Id"/>
+        </div>
+        <div class="mt-3">
+            <label class="form-label">Task Name</label>
+            <input type="text" class="form-control" asp-for="TaskName" />
+        </div>
+
+        <div class="mt-3">
+            <label class="form-label">Task Description</label>
+            <input type="text" class="form-control" asp-for="TaskDescription" />
+        </div>
+
+        <div class="mt-3">
+            <label class="form-label">Completetion Time(in Hours)</label>
+            <input type="text" class="form-control" asp-for="TargetTimeinHours" />
+        </div>
+
+       
+
+        <div class="row">
+            <div class="col-6">
+                <button type="submit" class="btn btn-primary form-control"> Save</button>
+            </div>
+            <div class="col-6">
+                <a asp-controller="TaskManager" asp-action="Index" class="btn btn-outline-secondary  form-control"> Back To list</a>
+            </div>
+        </div>
+    </form>
+}
+
